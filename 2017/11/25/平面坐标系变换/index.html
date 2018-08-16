@@ -1,0 +1,128 @@
+<html>
+<head>
+	
+	<!-- hexo-inject:begin --><!-- hexo-inject:end --><title>平面坐标系变换</title>
+	<meta name="keywords" content="" />
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    
+	   <link href="/css/main.css?v=3" rel="stylesheet" type="text/css" />
+    
+        <script src="/js/util.js"></script>
+        <script>
+            if(isMobile()) {
+                loadjscssfile('../css/mobile.css', 'css');
+            } else {
+                loadjscssfile('../css/desktop.css', 'css');
+            }
+        </script> 
+    
+
+    <link rel="alternate" type="application/atom+xml" href="/atom.xml" title="Atom feed">
+
+    
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=3"/><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+
+</head>
+
+<body>
+
+
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><h1 class="title">平面坐标系变换</h1>
+<hr class="title_sep"/>
+
+<div class="article-category">
+<!-- 2017-11-25 -->
+
+    <a class="article-tags-link" href="/tags/数学/">数学</a> | <a class="article-tags-link" href="/tags/机器人学/">机器人学</a>
+
+</div>
+
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#点（基本元素）"><span class="toc-text">点（基本元素）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#坐标变换运算"><span class="toc-text">坐标变换运算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#变换的齐次矩阵"><span class="toc-text">变换的齐次矩阵</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运算的性质"><span class="toc-text">运算的性质</span></a></li></ol>
+<p>机器人学中常涉及不同坐标系间的变换，在ROS中可以使用TF，但某些情况下也有手写变换的必要。</p>
+<h2 id="点（基本元素）"><a href="#点（基本元素）" class="headerlink" title="点（基本元素）"></a>点（基本元素）</h2><p>平面直角坐标系中，一个刚体的坐标和姿态（位姿）表现为向量$(x,y,\alpha)$，且其它刚体的位姿相对它有唯一表示。因此该向量（通常写成列向量的形式）便是平面直角坐标系坐标变换研究的基本元素（点）。</p>
+<blockquote>
+<p>坐标系O下的位姿P表示为 $\begin{pmatrix} x\ y\ \alpha \end{pmatrix} ^O _P$ 或齐次形式 $\begin{pmatrix} x\ y\ \alpha\ 1 \end{pmatrix} ^O _P$, 该位姿也可作为新坐标系的原点。</p>
+</blockquote>
+<h2 id="坐标变换运算"><a href="#坐标变换运算" class="headerlink" title="坐标变换运算"></a>坐标变换运算</h2><p>当以$(x,y,\alpha)^O_P$为新坐标系原点时，即产生坐标系P与坐标系O间的对应关系。该变换是平面欧几里德变换，因此是一一对应的，且仅取决于P与O的位姿关系$P^O$。</p>
+<blockquote>
+<p>$F(P \to O) = \Phi(P^O)$, 为平面上的任意点 $p$ 在 $P$ 和在 $O$ 坐标系中的坐标对应关系 $F(p^P) \to p^O$</p>
+</blockquote>
+<p>令$Rot(\alpha) = \bigl(\begin{smallmatrix}\cos\alpha&amp;-\sin\alpha\\sin\alpha&amp;\cos\alpha\end{smallmatrix}\bigr)$ 为逆时针（正向）旋转$\alpha$的旋转阵，显然$p^P \to p^O$为$p$旋转$\alpha^O_P$，再平移$(x,y)$所得，有：</p>
+<blockquote>
+<script type="math/tex; mode=display">\begin{pmatrix}x\\y\\\alpha\end{pmatrix}^O = F(\begin{pmatrix}x\\y\\\alpha\end{pmatrix}^P) = \begin{bmatrix} Rot(\alpha^O_P)\begin{pmatrix}x\\y\\\end{pmatrix}^P + \begin{pmatrix}x\\y\\\end{pmatrix}^O_P \\ \alpha^P + \alpha^O_P \end{bmatrix}</script></blockquote>
+<h2 id="变换的齐次矩阵"><a href="#变换的齐次矩阵" class="headerlink" title="变换的齐次矩阵"></a>变换的齐次矩阵</h2><p>使用齐次坐标，可以写成变换矩阵 $T$ 与齐次坐标 $p$ 相乘的形式：</p>
+<blockquote>
+<script type="math/tex; mode=display">F(p^P) = \begin{bmatrix}\cos\alpha&-\sin\alpha&0&x \\ \sin\alpha&\cos\alpha&0&y \\ 0&0&1&\alpha \\ 0&0&0&1\end{bmatrix}^O_P \begin{pmatrix}x\\y\\\alpha\\1\end{pmatrix}^P = T^O_P p^P</script></blockquote>
+<p>可见$T^O_P = T(P^O)$也是$P^O$的函数。</p>
+<p>令<script type="math/tex">Rot_z(\alpha) = \begin{bmatrix}\cos\alpha&-\sin\alpha&0\\\sin\alpha&\cos\alpha&0\\ 0&0&1\end{bmatrix}</script>即空间中绕z轴的旋转阵，可将$T$表示成分块矩阵：</p>
+<blockquote>
+<script type="math/tex; mode=display">F(p^P) = T^O_P p^P = \begin{bmatrix}Rot_z(\alpha^O_P)&P^O\\0&1\end{bmatrix} \begin{pmatrix}p^P\\1\end{pmatrix}</script></blockquote>
+<h2 id="运算的性质"><a href="#运算的性质" class="headerlink" title="运算的性质"></a>运算的性质</h2><p>$F$ 与 $T$ 的运算律间有明显的对应关系：</p>
+<ul>
+<li>传递性</li>
+</ul>
+<blockquote>
+<script type="math/tex; mode=display">F(O \to N) = F(O \to M) F(M \to N) \iff T^O_N = T^O_M T^M_N</script></blockquote>
+<ul>
+<li>逆变换</li>
+</ul>
+<blockquote>
+<script type="math/tex; mode=display">F(P \to O) = F^{-1}(O \to P) \iff T^P_O = (T^O_P)^{-1} = \begin{bmatrix}Rot_z(-\alpha^O_P)& -Rot_z(-\alpha^O_P)P^O\\0&1\end{bmatrix}</script></blockquote>
+<ul>
+<li>等效性</li>
+</ul>
+<blockquote>
+<script type="math/tex; mode=display">F^O_M F^M_N = F^O_N = \Phi(P^O_N) = \Phi(F^O_M(P^M_N)) \iff T^O_M T^M_N = T(T^O_M P^M_N)</script></blockquote>
+<p>因为</p>
+<blockquote>
+<script type="math/tex; mode=display">左边 = \begin{bmatrix}Rot_z(\alpha^O_M)&P^O_M\\0&1\end{bmatrix} \begin{bmatrix}Rot_z(\alpha^M_N)&P^M_N\\0&1\end{bmatrix} = \begin{bmatrix}Rot_z(\alpha^O_M+\alpha^M_N)&Rot_z(\alpha^O_M)P^M_N+P^O_M\\0&1\end{bmatrix}</script></blockquote>
+<p>而</p>
+<blockquote>
+<script type="math/tex; mode=display">右边 = T(\begin{bmatrix}Rot_z(\alpha^O_M)&P^O_M\\0&1\end{bmatrix}\begin{pmatrix}P^M_N\\1\end{pmatrix}) = T(Rot_z(\alpha^O_M)P^M_N+P^O_M)</script></blockquote>
+<p>所以 左边=右边</p>
+
+
+<!--<a href="https://jin-w-fs.github.io/2017/11/25/平面坐标系变换/#disqus_thread" class="article-comment-link">Comments</a>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = ''; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+--><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"]],"processEscapes":true}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+
+
+
+</body>
+</html>

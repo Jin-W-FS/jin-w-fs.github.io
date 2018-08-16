@@ -1,0 +1,102 @@
+<html>
+<head>
+	
+	<!-- hexo-inject:begin --><!-- hexo-inject:end --><title>Mahalanobis距离的物理含义</title>
+	<meta name="keywords" content="" />
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    
+	   <link href="/css/main.css?v=3" rel="stylesheet" type="text/css" />
+    
+        <script src="/js/util.js"></script>
+        <script>
+            if(isMobile()) {
+                loadjscssfile('../css/mobile.css', 'css');
+            } else {
+                loadjscssfile('../css/desktop.css', 'css');
+            }
+        </script> 
+    
+
+    <link rel="alternate" type="application/atom+xml" href="/atom.xml" title="Atom feed">
+
+    
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=3"/><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+
+</head>
+
+<body>
+
+
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><h1 class="title">Mahalanobis距离的物理含义</h1>
+<hr class="title_sep"/>
+
+<div class="article-category">
+<!-- 2018-01-24 -->
+
+    <a class="article-tags-link" href="/tags/数学/">数学</a>
+
+</div>
+
+
+<p>考虑概率分布$X,E(X)=\mu,cov(X,X)=\Sigma$，定义点$x$到$X$的马氏距离为</p>
+<script type="math/tex; mode=display">M(x,X) = \sqrt{(x-\mu)^T \Sigma^{-1} (x-\mu)}</script><p>特别的，当$X$的各维度彼此独立，</p>
+<script type="math/tex; mode=display">\Sigma = 
+\begin{pmatrix}
+  \sigma_1^2 & & & 0 \\
+  & \sigma_2^2 & &   \\
+  &   & \ddots &   \\
+  0 & & & \sigma_n^2 
+\end{pmatrix}</script><p>时，</p>
+<script type="math/tex; mode=display">M(x,X) = \sqrt{\sum_{i=0}^{n}(\frac{x_i - \mu_i}{\sigma_i}})^2</script><p>事实上为按均方差加权的欧式距离</p>
+<p>而根据<a href="/2018/01/19/%E6%AC%A7%E5%BC%8F%E5%B9%B3%E9%9D%A2%E4%B8%8A%E5%B9%B3%E6%96%B9%E8%B7%9D%E7%A6%BB%E6%9C%80%E5%B0%8F%E7%9A%84%E7%9B%B4%E7%BA%BF%E6%8B%9F%E5%90%88/#%E7%BB%9F%E8%AE%A1%E8%A7%86%E8%A7%92">协方差矩阵的性质</a>，总是存在一个正交变换$T$使其对角化：</p>
+<script type="math/tex; mode=display">x' = Tx, \mu'=T\mu, \Sigma' = (x'-\mu')(x'-\mu')^T =  T \Sigma T^{-1}为对角阵</script><p>此时</p>
+<script type="math/tex; mode=display">M(x,X) = \sqrt{(x-\mu)^T \Sigma^{-1} (x-\mu)} \\
+= \sqrt{(x-\mu)^T (T^{-1} \Sigma' T)^{-1} (x-\mu)} \\
+= \sqrt{(x-\mu)^T T^{-1} \Sigma'^{-1}  T (x-\mu)} \\
+= \sqrt{(x'-\mu')^T \Sigma'^{-1} (x'-\mu')}</script><p>如此马氏距离的物理意义就清楚了：在$X$的$n$个独立且正交的主方向上，通过空间缩放变换，归一化均方差，此时$x$距$X$中心的欧式距离，即为Mahalanobis距离</p>
+
+
+<!--<a href="https://jin-w-fs.github.io/2018/01/24/Mahalanobis距离的物理含义/#disqus_thread" class="article-comment-link">Comments</a>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = ''; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+--><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"]],"processEscapes":true}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+
+
+
+</body>
+</html>

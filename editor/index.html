@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Markdown-MathJax Editor</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<style>
+#editor {
+	height:600px;
+	width:100%;
+	text-align:left;
+	border:0;
+	font: Verdana, Arial, Helvetica, NSimSun, SimHei, sans-serif;
+}
+
+#editor .split {
+	height:600px;
+	width:50%;
+	border:2px solid #c5c5c5;
+	padding:0 2px 0 2px;
+}
+
+#code-area textarea {
+	width:100%;
+	height:100%;
+	overflow:auto;
+	margin:0;
+	border:none;
+	resize:none;
+}
+
+#preview-area .preview {
+    padding:0 1px 0 1px;
+    width:100%;
+	height:100%;
+	overflow:auto;
+}
+
+.hint {
+    text-align: right;
+    color: #555555;
+    font-size: small;
+}
+.hint a {
+    color: #555555;
+}
+</style>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    showProcessingMessages: false,
+    tex2jax: { inlineMath: [['$','$'],['\\(','\\)']] },
+    TeX: { equationNumbers: {autoNumber: "AMS"} }
+  });
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/javascript" src="marked.js"></script>
+<script type="text/javascript" src="moment.min.js"></script>
+<script>
+marked.setOptions({
+  renderer: new marked.Renderer(),
+  gfm: true,
+  tables: true,
+  breaks: false,
+  pedantic: false,
+  sanitize: false, // IMPORTANT, because we do MathJax before markdown,
+                   //            however we do escaping in 'CreatePreview'.
+  smartLists: true,
+  smartypants: false
+});
+
+var Preview = {
+  delay: 50,        // delay after keystroke before updating
+
+  preview: null,     // filled in by Init below
+  buffer: null,      // filled in by Init below
+
+  timeout: null,     // store setTimout id
+  mjRunning: false,  // true when MathJax is processing
+  oldText: null,     // used to check if an update is needed
+
+  //
+  //  Get the preview and buffer DIV's
+  //
+  Init: function () {
+    this.preview = document.getElementById("marked-mathjax-preview");
+    this.buffer = document.getElementById("marked-mathjax-preview-buffer");
+    this.textarea = document.getElementById("marked-mathjax-input");
+    this.textarea.value = this.textarea.value.replace(/date:(.*)/i,
+        function(match, fmt) { return "date:" + moment().format(fmt); });
+  },
+
+  //
+  //  Switch the buffer and preview, and display the right one.
+  //  (We use visibility:hidden rather than display:none since
+  //  the results of running MathJax are more accurate that way.)
+  //
+  SwapBuffers: function () {
+    var buffer = this.preview;
+    var preview = this.buffer;
+    this.buffer = buffer;
+    this.preview = preview;
+    buffer.style.display = "none";
+    buffer.style.position = "absolute";
+    preview.style.position = ""; 
+    preview.style.display = "";
+  },
+
+  //
+  //  This gets called when a key is pressed in the textarea.
+  //  We check if there is already a pending update and clear it if so.
+  //  Then set up an update to occur after a small delay (so if more keys
+  //    are pressed, the update won't occur until after there has been 
+  //    a pause in the typing).
+  //  The callback function is set up below, after the Preview object is set up.
+  //
+  Update: function () {
+    if (this.timeout) {clearTimeout(this.timeout)}
+    this.timeout = setTimeout(this.callback,this.delay);
+  },
+
+  //
+  //  Creates the preview and runs MathJax on it.
+  //  If MathJax is already trying to render the code, return
+  //  If the text hasn't changed, return
+  //  Otherwise, indicate that MathJax is running, and start the
+  //    typesetting.  After it is done, call PreviewDone.
+  //  
+  CreatePreview: function () {
+    Preview.timeout = null;
+    if (this.mjRunning) return;
+    var text = this.textarea.value;
+    if (text === this.oldtext) return;
+    this.oldtext = text;
+    this.buffer.innerHTML = this.MarkDown(text);
+    this.mjRunning = true;
+    MathJax.Hub.Queue(
+      ["Typeset", MathJax.Hub, this.buffer],
+      ["PreviewDone",this],
+      ["resetEquationNumbers", MathJax.InputJax.TeX]
+    );
+  },
+
+  //
+  //  Indicate that MathJax is no longer running,
+  //  and swap the buffers to show the results.
+  //
+  PreviewDone: function () {
+    this.SwapBuffers();
+    this.mjRunning = false;
+  },
+
+  //
+  //  transfer markdown text to html
+  //
+  MarkDown: function (text) {
+    // split head(meta data) and body
+	var delim = text.indexOf("---\n", 4);
+	if (delim < 0) delim = 0;
+	var head = text.substring(0, delim);
+	var body = text.substring(delim);
+	// append formated head to body
+	var title = head.match(/title:\s*(.*)/i);
+	if (title != null) body = "# " + title[1] + "\n" + body;
+	// then do escape
+    return marked(body); // no need to escape, tested.
+  },
+
+  // The idea here is to perform fast updates. See http://stackoverflow.com/questions/11228558/let-pagedown-and-mathjax-work-together/21563171?noredirect=1#comment46869312_21563171
+  // But our implementation is a bit buggy: flickering, bad rendering when someone types very fast.
+  //
+  // If you want to enable such buggy fast updates, you should 
+  // add something like  onkeypress="Preview.UpdateKeyPress(event)" to textarea's attributes.
+  UpdateKeyPress: function (event) {
+    if (event.keyCode < 16 || event.keyCode > 47) {
+      this.preview.innerHTML = '<p>' + marked(this.textarea.value) + '</p>';
+      this.buffer.innerHTML = '<p>' + marked(this.textarea.value) + '</p>';
+    }
+    this.Update();
+  }
+  
+};
+
+//
+//  Cache a callback to the CreatePreview action
+//
+Preview.callback = MathJax.Callback(["CreatePreview",Preview]);
+Preview.callback.autoReset = true;  // make sure it can run more than once
+</script>
+
+</head>
+
+<body>
+
+<h2>Type something:</h2>
+
+<table id="editor" border="0">
+<tbody><tr>
+
+<td class="split" id="code-area">
+<textarea id="marked-mathjax-input" onkeyup="Preview.Update()" name="comment" autofocus="autofocus">
+title: Title
+date: 2017-11-26
+tags:
+- tag
+- tag
+---
+## Contents
+
+1. MathJax inline: $\Gamma \sin\alpha_1 <> x_2$
+
+2. MathJax block: $$\begin{bmatrix} \cos\alpha&-\sin\alpha \\ \sin\alpha&\cos\alpha \end{bmatrix}$$
+
+* let's try some code with << or >> or `>>`:
+```c++
+#include <iostream>
+int main() {
+	std::cout << "Hello, $world$" << std::endl;
+}
+```
+
+> **Quote**
+>> *Today is a fine day*
+</textarea>
+</td>
+
+<td class="split" id="preview-area">
+<div class="preview" id="marked-mathjax-preview"></div>
+<div class="preview" id="marked-mathjax-preview-buffer" style="display:none;position:absolute;"></div>
+</td>
+
+</tbody></tr>
+</table>
+
+<div class="hint">Use 
+<a target="_blank" href="https://en.wikibooks.org/wiki/LaTeX/Mathematics">$\LaTeX$</a> to type formulæ and 
+<a target="_blank" href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Markdown</a> to format text.<br/>
+Powered by <a target="_blank" href="https://github.com/kerzol/markdown-mathjax">kerzol/markdown-mathjax</a>,
+modified by <a target="_blank" href="https://github.com/jin-w-fs/markdown-mathjax">Jin</a>.
+</div>
+
+<script>
+Preview.Init();
+Preview.Update();
+</script>
+
+</body>
+</html>

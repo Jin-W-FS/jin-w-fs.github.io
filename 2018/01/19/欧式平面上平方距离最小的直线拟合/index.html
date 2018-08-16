@@ -1,0 +1,119 @@
+<html>
+<head>
+	
+	<!-- hexo-inject:begin --><!-- hexo-inject:end --><title>欧式平面上平方距离最小的直线拟合</title>
+	<meta name="keywords" content="" />
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    
+	   <link href="/css/main.css?v=3" rel="stylesheet" type="text/css" />
+    
+        <script src="/js/util.js"></script>
+        <script>
+            if(isMobile()) {
+                loadjscssfile('../css/mobile.css', 'css');
+            } else {
+                loadjscssfile('../css/desktop.css', 'css');
+            }
+        </script> 
+    
+
+    <link rel="alternate" type="application/atom+xml" href="/atom.xml" title="Atom feed">
+
+    
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=3"/><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+
+</head>
+
+<body>
+
+
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><h1 class="title">欧式平面上平方距离最小的直线拟合</h1>
+<hr class="title_sep"/>
+
+<div class="article-category">
+<!-- 2018-01-19 -->
+
+    <a class="article-tags-link" href="/tags/数学/">数学</a>
+
+</div>
+
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#最优化推导"><span class="toc-text">最优化推导</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#统计视角"><span class="toc-text">统计视角</span></a></li></ol>
+<p>从平面上的一族点拟合一条直线是一个常见问题。然而统计上常用的针对 $y=kx+b$ 的最小二乘优化，最小化的是$y$方向上的误差$\sum E_y^2$，并不是欧几里德平面上的距离最小。</p>
+<h2 id="最优化推导"><a href="#最优化推导" class="headerlink" title="最优化推导"></a>最优化推导</h2><p>将待拟合的直线用法向-距离表示为</p>
+<script type="math/tex; mode=display">x\cos\alpha + y\sin\alpha - r = 0</script><p>则任意一点$(x,y)$到该直线的距离为</p>
+<script type="math/tex; mode=display">d = \sqrt{(x\cos\alpha + y\sin\alpha - r)^2}</script><p>已知点集$\&#123;(x,y)\&#125;_n$，在最小化$d^2$的条件下，拟合出的最优直线参数为</p>
+<script type="math/tex; mode=display">Argmin_{\alpha, r} \sum (x\cos\alpha + y\sin\alpha - r)^2</script><p>记 $\cos\alpha = c, \sin\alpha = s$，待优化的和式有如下展开</p>
+<script type="math/tex; mode=display">
+F(\alpha, r) = \sum (x\cos\alpha + y\sin\alpha - r)^2 \\
+= \sum (c^2x^2 + s^2y^2 + 2csxy - 2rcx - 2rsy + r^2) \\
+= c^2\sum{x^2} + s^2\sum{y^2} + 2cs\sum{xy} - 2rc\sum{x} - 2rs\sum{y} + nr^2</script><p>求偏导，有</p>
+<script type="math/tex; mode=display">0 = \frac{\partial F}{\partial r} \\
+ = - 2c\sum{x} - 2s\sum{y} + 2nr</script><p>即</p>
+<script type="math/tex; mode=display">r = \frac{c\sum{x}+s\sum{y}}{n}</script><p>且</p>
+<script type="math/tex; mode=display">0 = \frac{\partial F}{\partial\alpha} \\
+= -2cs\sum{x^2} + 2cs\sum{y^2} + 2(c^2-s^2)\sum{xy} \\
++2rs\sum{x} - 2rc\sum{y} + 0</script><p>代入上式的$r$，有</p>
+<script type="math/tex; mode=display">-2cs(\sum{x^2} - \sum{y^2}) + 2(c^2-s^2)\sum{xy} + \frac{2(c\sum{x}+s\sum{y})(s\sum{x}-c\sum{y})}{n} = 0</script><p>整理得</p>
+<script type="math/tex; mode=display">cs[(\sum{x})^2-(\sum{y})^2-n\sum{x^2}+n\sum{y^2}] - (c^2-s^2)(\sum{x}\sum{y}-n\sum{xy}) = 0</script><p>令</p>
+<script type="math/tex; mode=display">
+\Delta = \frac{[(\sum{x})^2-n\sum{x^2}]-[(\sum{y})^2-n\sum{y^2}]}{2(\sum{x}\sum{y}-n\sum{xy})} \\
+= \frac{c^2-s^2}{2cs} = \cot 2\alpha</script><p>由此解出</p>
+<script type="math/tex; mode=display">
+\alpha = \frac{1}{2}\arctan\frac{1}{\Delta} + \frac{k\pi}{2}, k \in \mathbb{Z} \\
+r = \frac{\cos\alpha\sum{x}+\sin\alpha\sum{y}}{n}</script><p>其中$\alpha$在$[-\pi/2,\pi/2)$的范围内具有相互垂直的两个值，分别对应所拟合直线的切向和法向，也即是使$F(\alpha,r)$最大最小的两个方向</p>
+<h2 id="统计视角"><a href="#统计视角" class="headerlink" title="统计视角"></a>统计视角</h2><p>注意到协方差</p>
+<script type="math/tex; mode=display">cov(x,y) = E(xy) - E(x)E(y) = \frac{n\sum{xy}-\sum{x}\sum{y}}{n^2}</script><p>将 $\Delta$ 的分子分母同除 $-n^2$，得$\alpha$的协方差表示形式</p>
+<script type="math/tex; mode=display">\cot 2\alpha = \Delta = \frac{cov(x,x)-cov(y,y)}{2cov(x,y)}</script><p>这也提示了我们该直线的方向向量与协方差矩阵的联系</p>
+<p>一般的，对$m$维点$x = (x_1, x_2, …, x_m)^T$的集合$\&#123;x\&#125;_n$，其协方差矩阵为</p>
+<script type="math/tex; mode=display">\Sigma(x) = (x - \mu_x)(x - \mu_x)^T</script><p>其中$\mu_x = E(x)$为$x$的均值</p>
+<p>若取正交变换$T$，使$x’= Tx$将$x$变换到另一个点集$x’$，则有</p>
+<script type="math/tex; mode=display">\Sigma(x') = T(x - \mu_x)(x - \mu_x)^TT^T = T\Sigma(x)T^{-1}</script><p>即$\Sigma(x’)$始终与$\Sigma(x)$相似</p>
+<p>由于$\Sigma(x)$为实对称矩阵，知必存在$\Sigma(x’)=T\Sigma(x)T^{-1}$为$\Sigma(x)$的对角化，且其对角线上的元素等于$\Sigma(x)$的各特征值</p>
+<p>从统计的意义上，这意味着可以取一组$m$维的正交基，使$x$在各方向上的投影彼此独立（$x’= Tx, cov(x’_i, x’_j) = 0,i \neq j$）。此时各方向上分布的方差就是$\Sigma(x)$的特征值，而相应的方向则是对应的特征向量。</p>
+<p>…</p>
+
+
+<!--<a href="https://jin-w-fs.github.io/2018/01/19/欧式平面上平方距离最小的直线拟合/#disqus_thread" class="article-comment-link">Comments</a>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = ''; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+--><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"]],"processEscapes":true}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+
+
+
+</body>
+</html>

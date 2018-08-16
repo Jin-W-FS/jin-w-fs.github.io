@@ -1,0 +1,129 @@
+<html>
+<head>
+	
+	<!-- hexo-inject:begin --><!-- hexo-inject:end --><title>Kalman滤波摘要</title>
+	<meta name="keywords" content="" />
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    
+	   <link href="/css/main.css?v=3" rel="stylesheet" type="text/css" />
+    
+        <script src="/js/util.js"></script>
+        <script>
+            if(isMobile()) {
+                loadjscssfile('../css/mobile.css', 'css');
+            } else {
+                loadjscssfile('../css/desktop.css', 'css');
+            }
+        </script> 
+    
+
+    <link rel="alternate" type="application/atom+xml" href="/atom.xml" title="Atom feed">
+
+    
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=3"/><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+
+</head>
+
+<body>
+
+
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><h1 class="title">Kalman滤波摘要</h1>
+<hr class="title_sep"/>
+
+<div class="article-category">
+<!-- 2017-12-16 -->
+
+    <a class="article-tags-link" href="/tags/数学/">数学</a> | <a class="article-tags-link" href="/tags/自控/">自控</a>
+
+</div>
+
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#测量更新方程的形式，源自两种估计的加权平均"><span class="toc-text">测量更新方程的形式，源自两种估计的加权平均</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解方程即求一个K，使后验估计各维度的方差和最小"><span class="toc-text">解方程即求一个K，使后验估计各维度的方差和最小</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一维情况下的Kalman滤波器"><span class="toc-text">一维情况下的Kalman滤波器</span></a></li></ol>
+<blockquote>
+<p>本文的符号体系与<a href="https://en.wikipedia.org/wiki/Kalman_filter">wikipedia词条</a>一致</p>
+</blockquote>
+<h2 id="测量更新方程的形式，源自两种估计的加权平均"><a href="#测量更新方程的形式，源自两种估计的加权平均" class="headerlink" title="测量更新方程的形式，源自两种估计的加权平均"></a>测量更新方程的形式，源自两种估计的加权平均</h2><p>为估计$k$时刻的系统状态$x_{k|k}$，需要融合</p>
+<ol>
+<li>根据连续性得到的状态估计 $\hat{x}_{k|k-1}$</li>
+<li>由观察结果得到的状态估计 $H^{-1}z_{k}$ （事实上H未必可逆，姑且按广义的逆来思考）</li>
+</ol>
+<p>在状态更新误差和观测误差均服从$N(0,\sigma^2)$的假设下，二者均为$x_{k|k}$的无偏估计，故按误差方差大小进行加权平均，应能得到最优的无偏估计：</p>
+<script type="math/tex; mode=display">\hat{x}_{k|k} = (I - K'_k) \hat{x}_{k|k-1} + K'_k (H^{-1} z_{k}) = \hat{x}_{k|k-1} + K'_k (H^{-1} z_{k} - \hat{x}_{k|k-1})</script><p>令 $ K_k = K’_k H^{-1} $，得</p>
+<script type="math/tex; mode=display">\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k (z_{k} - H \hat{x}_{k|k-1})</script><h2 id="解方程即求一个K，使后验估计各维度的方差和最小"><a href="#解方程即求一个K，使后验估计各维度的方差和最小" class="headerlink" title="解方程即求一个K，使后验估计各维度的方差和最小"></a>解方程即求一个K，使后验估计各维度的方差和最小</h2><blockquote>
+<p>来自<a href="https://en.wikipedia.org/wiki/Kalman_filter#Derivations">wikipedia:kalman_filter#derivations</a>，这里只做个摘要</p>
+</blockquote>
+<script type="math/tex; mode=display">P_{k|k} = cov(x_k - \hat{x}_{k|k}) \\
+ = cov(x_k - \hat{x}_{k|k-1} - K_k (z_{k} - H \hat{x}_{k|k-1})) \\
+ = cov(x_k - \hat{x}_{k|k-1} - K_k (H x_k + v_k - H \hat{x}_{k|k-1})) \\
+ = cov((I - K_k H)(x_k - \hat{x}_{k|k-1}) - K_k v_k) \\
+ = cov((I - K_k H)(x_k - \hat{x}_{k|k-1})) + cov(K_k v_k) \\
+ = (I - K_k H)P_{k|k-1}(I - K_k H)^T + K_k R_k K_k^T \\
+ = P_{k|k-1} - K_k H P_{k|k-1} - P_{k|k-1} H^T K_k^T + K_k(H P_{k|k-1} H^T + R_k)K_k^T</script><p>最小化各维度的方差和</p>
+<script type="math/tex; mode=display">\sum \sigma^2_i = tr(P_{k|k})</script><p>即是使</p>
+<script type="math/tex; mode=display">\frac{\partial tr(P_{k|k})}{\partial K_k} = -2 P_{k|k-1} H^T + 2  K_k (H P_{k|k-1} H^T + R_k) = 0</script><p>故<sup>[注]</sup></p>
+<script type="math/tex; mode=display">K_k = P_{k|k-1} H^T(H P_{k|k-1} H^T + R_k)^{-1}</script><blockquote>
+<p><a href="https://en.wikipedia.org/wiki/Matrix_calculus#Scalar-by-matrix_identities">注</a>：</p>
+<script type="math/tex; mode=display">\frac{\partial tr(AXB)}{\partial X} = \frac{\partial tr(BAX)}{\partial X} = A^T B^T</script><script type="math/tex; mode=display">\frac{\partial tr(XAX^T)}{\partial X} =  X A +  X A^T</script><p>且<a href="https://en.wikipedia.org/wiki/Covariance_matrix#Properties">协方差矩阵</a> $ P = P^T, R = R^T $，故</p>
+<script type="math/tex; mode=display">(H P_{k|k-1} H^T + R_k) = (H P_{k|k-1} H^T + R_k)^T</script></blockquote>
+<h2 id="一维情况下的Kalman滤波器"><a href="#一维情况下的Kalman滤波器" class="headerlink" title="一维情况下的Kalman滤波器"></a>一维情况下的Kalman滤波器</h2><p>考虑一个特殊的Kalman系统，其状态、控制量及观察值只有一维，且假定其系数均为1：</p>
+<script type="math/tex; mode=display">
+x_k = x_{k-1} + u_k + w_k \\
+z_k = x_k + v_k \\</script><p>其Kalman方程为：</p>
+<script type="math/tex; mode=display">
+\hat{x}_{k|k-1} = \hat{x}_{k-1|k-1} + u_k \\
+P_{k|k-1} = P_{k-1|k-1} + Q_k \\
+K_k = P_{k|k-1} / (P_{k|k-1} + R_k) \\
+\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k (z_k - \hat{x}_{k|k-1}) \\
+P_{k|k} = (1 - K_k) P_{k|k-1}</script><p>其更新方程可化简为</p>
+<script type="math/tex; mode=display">
+\hat{x}_k = \frac{R_k}{P_{k|k-1} + R_k} \hat{x}_{k|k-1} + \frac{P_{k|k-1}}{P_{k|k-1} + R_k} z_k \\
+P_k = \frac{R_k}{P_{k|k-1} + R_k} P_{k-1}</script><p>若Q, R均是定值，则稳定后$\hat{x}_{k|k-1}$和$z_k$的系数亦是定值，此时Kalman滤波便与一个加权更新器无异。</p>
+<p>另一方面，从这个例子可以看出Kalman滤波器按方差反比融合两个信息源的特点。有更多信息源时亦可如此融合。</p>
+<blockquote>
+<p>注： $ \frac{B}{A+B} = \frac{\frac{1}{A}}{\frac{1}{A}+\frac{1}{B}} $</p>
+</blockquote>
+
+
+<!--<a href="https://jin-w-fs.github.io/2017/12/16/Kalman/#disqus_thread" class="article-comment-link">Comments</a>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = ''; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+--><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"]],"processEscapes":true}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+
+
+
+</body>
+</html>
