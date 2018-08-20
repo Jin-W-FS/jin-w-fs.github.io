@@ -4,8 +4,11 @@ import common
 import html
 from pathlib import Path
 
+excludes = '.tm',
+
 def collectPosts():
     for file in sorted(Path().glob('20??/**/*.*'), reverse=True):
+        if file.suffix in excludes: continue
         yield { 'path' : '/' + file.as_posix(),
                 'title' : file.stem }
 
